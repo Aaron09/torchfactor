@@ -52,7 +52,7 @@ class Experiment:
         for epoch in range(num_epochs):
             
             running_loss = 0.0
-            for i, data  in enumerate(self.train_dataloder, 0):
+            for i, data  in enumerate(self.train_dataloader, 0):
                 inputs, gts = data
                 
                 if self.cuda:
