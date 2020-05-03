@@ -3,6 +3,7 @@ from PIL import Image
 import random
 from torch.utils import data
 from torchvision.transforms import ToTensor
+from torchvision.transforms.functional import resize
 
 class PolyUDataset(data.Dataset):
     DATASET_BASE_DIR = './PolyU-Real-World-Noisy-Images-Dataset/'
@@ -13,7 +14,7 @@ class PolyUDataset(data.Dataset):
                            'all' : (0.0, 1.0)}
                            
     def __init__(self, split_type='train', use_cropped_images=True, image_type='real',
-                 in_memory=True, dataset_dir=DATASET_BASE_DIR):
+                 in_memory=True, dataset_dir=DATASET_BASE_DIR, downsample_shape=None):
         """
             Args:
                 split_type: Whether to retrieve training, validation, or testing data.
@@ -36,6 +37,7 @@ class PolyUDataset(data.Dataset):
         else:
             dataset_dir += 'OriginalImages/'
         self.in_memory = in_memory
+        self.downsample_shape = downsample_shape
         
         # Find only the images labelled with the suffix specified by image_type
         image_file_path_glob = dataset_dir + '*.[jJ][pP][gG]'
@@ -56,7 +58,11 @@ class PolyUDataset(data.Dataset):
         # If in_memory is specified, cache all images for the split in memory
         if self.in_memory:
             self.image_data = [Image.open(image_file_path) for image_file_path in self.split_data_file_paths]
-            
+                        
+            if self.downsample_shape is not None:
+                self.image_data = [resize(img, (128, 128)) for img in self.image_data]
+                    
+        
     def __len__(self):
         return len(self.split_data_file_paths)
         
@@ -66,6 +72,9 @@ class PolyUDataset(data.Dataset):
         else:
             image_file_path = self.split_data_file_paths[index]
             index_image = Image.open(image_file_path)
+            
+            if self.downsample_shape is not None:
+                index_image = resize(index_image, (128, 128))
             
         return ToTensor()(index_image)
 
