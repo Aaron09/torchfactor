@@ -38,15 +38,15 @@ class PolyUDataset(data.Dataset):
         self.in_memory = in_memory
         
         # Find only the images labelled with the suffix specified by image_type
-        image_file_path_glob = dataset_dir + '*.jpg'
+        image_file_path_glob = dataset_dir + '*.[jJ][pP][gG]'
         if image_type != 'all':
-            image_file_path_glob = dataset_dir + '*_' + image_type + '.jpg'
-		
+            image_file_path_glob = dataset_dir + '*_' + image_type + '.[jJ][pP][gG]'        
+        
         # Deterministically shuffle the data filepaths to randomly assign images to train, test, or val
         all_image_file_paths = glob.glob(image_file_path_glob)
         random.seed(PolyUDataset.DATASET_SEED)
         random.shuffle(all_image_file_paths)
-        
+                
         # Partition the data according the the split percents defined at the top of this class
         (data_start_percent, data_end_percent) = PolyUDataset.DATA_SPLIT_PERCENTS[split_type]
         split_start_index = int(data_start_percent * len(all_image_file_paths))
@@ -70,29 +70,30 @@ class PolyUDataset(data.Dataset):
         return ToTensor()(index_image)
 
 
-TRAIN_BATCH_SIZE = 8
-VAL_BATCH_SIZE = 8
-TEST_BATCH_SIZE = 16
-IMAGE_TYPE = 'mean' # can also be 'real' or 'all'
+if __name__ == "__main__":
+    TRAIN_BATCH_SIZE = 8
+    VAL_BATCH_SIZE = 8
+    TEST_BATCH_SIZE = 16
+    IMAGE_TYPE = 'mean' # can also be 'real' or 'all'
 
-# Example dataloaders for training, validation, and testing
-training_dataset = PolyUDataset(split_type='train', image_type=IMAGE_TYPE)
-training_dataloader = data.DataLoader(training_dataset, batch_size=TRAIN_BATCH_SIZE, shuffle=True, num_workers=0, drop_last=True)
-print(f'Training: {len(training_dataset)} images')
-for (i, current_image_batch) in enumerate(training_dataloader):
-    print(f'Batch {i}: {current_image_batch.shape}')
-print()
+    # Example dataloaders for training, validation, and testing
+    training_dataset = PolyUDataset(split_type='train', image_type=IMAGE_TYPE)
+    training_dataloader = data.DataLoader(training_dataset, batch_size=TRAIN_BATCH_SIZE, shuffle=True, num_workers=0, drop_last=True)
+    print(f'Training: {len(training_dataset)} images')
+    for (i, current_image_batch) in enumerate(training_dataloader):
+        print(f'Batch {i}: {current_image_batch.shape}')
+    print()
 
-validation_dataset = PolyUDataset(split_type='val', image_type=IMAGE_TYPE, in_memory=False)
-validation_dataloader = data.DataLoader(validation_dataset, batch_size=VAL_BATCH_SIZE, shuffle=False, num_workers=0, drop_last=False)
-print(f'Validation: {len(validation_dataset)} images')
-for (i, current_image_batch) in enumerate(validation_dataloader):
-    print(f'Batch {i}: {current_image_batch.shape}')
-print()
+    validation_dataset = PolyUDataset(split_type='val', image_type=IMAGE_TYPE, in_memory=False)
+    validation_dataloader = data.DataLoader(validation_dataset, batch_size=VAL_BATCH_SIZE, shuffle=False, num_workers=0, drop_last=False)
+    print(f'Validation: {len(validation_dataset)} images')
+    for (i, current_image_batch) in enumerate(validation_dataloader):
+        print(f'Batch {i}: {current_image_batch.shape}')
+    print()
 
-test_dataset = PolyUDataset(split_type='test', image_type=IMAGE_TYPE)
-test_dataloader = data.DataLoader(test_dataset, batch_size=TEST_BATCH_SIZE, shuffle=False, num_workers=0, drop_last=False)
-print(f'Testing: {len(test_dataset)} images')
-for (i, current_image_batch) in enumerate(test_dataloader):
-    print(f'Batch {i}: {current_image_batch.shape}')
-print()
+    test_dataset = PolyUDataset(split_type='test', image_type=IMAGE_TYPE)
+    test_dataloader = data.DataLoader(test_dataset, batch_size=TEST_BATCH_SIZE, shuffle=False, num_workers=0, drop_last=False)
+    print(f'Testing: {len(test_dataset)} images')
+    for (i, current_image_batch) in enumerate(test_dataloader):
+        print(f'Batch {i}: {current_image_batch.shape}')
+    print()
