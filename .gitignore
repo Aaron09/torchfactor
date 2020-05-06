@@ -1,1 +1,6 @@
 .ipynb_checkpoints/
+__pycache__/
+*.pyc
+data/
+dist/
+torchfactor.egg-info
